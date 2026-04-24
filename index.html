@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Packet Loss Test by OpenPacketLoss™ | Real UDP & WebRTC Test</title>
+    <meta name="description" content="Run a real Packet Loss Test by OpenPacketLoss™. A diagnostic tool for testing true packet loss using UDP and WebRTC to accurately measure network stability.">
+    <link rel="canonical" href="https://openpacketloss.com" />
+    <link rel="icon" type="image/png" href="/icon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/icon/icon.svg" />
+    <link rel="shortcut icon" href="/icon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icon/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/icon/safari-pinned-tab.svg" color="#3DA6FF" />
+    <meta name="apple-mobile-web-app-title" content="OpenPacketLoss" />
+    <meta name="theme-color" content="#3DA6FF" />
+    <link rel="manifest" href="/icon/site.webmanifest" />
+    <!-- Preload Fonts -->
+
+
+    <!-- Local Fonts -->
+    <link rel="stylesheet" href="fonts.min.css?v=1776935747193">
+    <!-- External CSS -->
+    <link rel="stylesheet" href="styles.min.css?v=1776935747193">
+    <style id="theme-inline-css">
+        /* Standalone Reset - Only applies to index.html, not when embedded */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Immediate background fix to prevent flicker */
+        [data-theme="dark"], .dark {
+            background-color: #09090b;
+        }
+
+        /* Light Mode Critical Variables */
+        [data-theme="light"] .openpacketloss-app#openpacketloss-root,
+        .openpacketloss-app#openpacketloss-root {
+            --success-color: #10b981;
+        }
+
+        /* Critical app variables before styles.css loads */
+        [data-theme="dark"] .openpacketloss-app#openpacketloss-root,
+        .dark .openpacketloss-app#openpacketloss-root {
+            --bg-color: #09090b;
+            --container-bg: #18181b;
+            --controls-bg: #09090b;
+            --text-color: #f4f4f5;
+            --client-color: #3b82f6;
+            --server-color: #3b82f6;
+            --line-color: #71717a;
+            --grid-color: #27272a;
+            --loss-color: #ef4444;
+            --success-color: #22c55e;
+            --button-bg: #27272a;
+            --button-border: #3f3f46;
+            --button-hover: #3f3f46;
+            --path-color: #3f3f46;
+            --glow-strong: 0 0 15px rgba(59, 130, 246, 0.6);
+            --glow-subtle: 0 0 8px rgba(59, 130, 246, 0.3);
+            --glow-loss: 0 0 15px rgba(239, 68, 68, 0.6);
+        }
+    </style>
+    <script>
+        (function () {
+            // Theme Detection: URL > Cookie > System
+            const params = new URLSearchParams(window.location.search);
+            const mode = params.get('mode') || document.cookie.match('(^|;)\\s*mode\\s*=\\s*([^;]+)')?.pop();
+            const systemMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            const theme = (mode === 'dark' || mode === 'light') ? mode : systemMode;
+
+            // Apply immediately to prevent flicker
+            document.documentElement.dataset.theme = theme;
+            if (theme === 'dark') document.documentElement.classList.add('dark');
+
+            // Platform configuration: 'web' or 'self'
+            const PLATFORM = 'self';
+
+            window.TEST_CONFIG = {
+                platform: PLATFORM,
+                presets: {
+                    quick: {
+                        duration: 10,        // seconds
+                        packetCount: 640,
+                        interval: 15.625     // ms
+                    },
+                    default: {
+                        duration: 30,        // seconds
+                        packetCount: 1920,
+                        interval: 15.625     // ms
+                    },
+                    max: {
+                        duration: PLATFORM === 'web' ? 300 : Infinity,
+                        packetCount: PLATFORM === 'web' ? 6000 : Infinity,
+                        interval: 50         // ms
+                    }
+                }
+            };
+        })();
+    </script>
+</head>
+
+<body>
+    <div id="openpacketloss-root" class="openpacketloss-app">
+        <div id="container">
+            <svg id="main-svg" viewBox="0 0 710 320" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                    <g id="icon-client">
+                        <rect x="-20" y="-20" width="40" height="30" rx="4" fill="var(--client-color)" />
+                        <rect x="-15" y="-15" width="30" height="20" rx="2" fill="#000" opacity="0.3" />
+                        <rect x="6" y="2" width="6" height="1.2" fill="#0f0" opacity="1">
+                            <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite" />
+                        </rect>
+                        <path d="M-10 15 L-15 25 L15 25 L10 15 Z" fill="var(--client-color)" />
+                        <rect x="-15" y="25" width="30" height="3" fill="var(--client-color)" />
+                    </g>
+
+                    <g id="icon-server">
+                        <rect x="-20" y="-30" width="40" height="60" rx="2" fill="var(--server-color)" />
+                        <rect x="-15" y="-25" width="30" height="5" rx="1" fill="#000" opacity="0.3" />
+                        <rect x="-15" y="-15" width="30" height="5" rx="1" fill="#000" opacity="0.3" />
+                        <rect x="-15" y="-5" width="30" height="5" rx="1" fill="#000" opacity="0.3" />
+                        <rect x="-15" y="5" width="30" height="5" rx="1" fill="#000" opacity="0.3" />
+                        <circle cx="12" cy="-22" r="1.5" fill="#0f0">
+                            <animate attributeName="opacity" values="1;0.3;1" dur="1.2s" repeatCount="indefinite" />
+                        </circle>
+                        <circle cx="12" cy="-12" r="1.5" fill="#0f0">
+                            <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite" />
+                        </circle>
+                    </g>
+
+                    <linearGradient id="graph-gradient" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0%" stop-color="var(--line-color)" stop-opacity="0.5" />
+                        <stop offset="100%" stop-color="var(--line-color)" stop-opacity="0" />
+                    </linearGradient>
+                </defs>
+
+                <g id="layout-group">
+                    <g id="stats-group"></g>
+
+                    <g id="client-group" class="glow-client" transform="translate(60, 160)">
+                        <use href="#icon-client" />
+                        <text x="0" y="50" text-anchor="middle" fill="var(--client-color)" font-size="14">CLIENT</text>
+                    </g>
+
+                    <g id="server-group" class="glow-server" transform="translate(650, 160)">
+                        <use href="#icon-server" />
+                        <text x="0" y="50" text-anchor="middle" fill="var(--server-color)" font-size="14">SERVER</text>
+                    </g>
+
+                    <path id="path-c2s" stroke="var(--path-color)" stroke-width="2" fill="none" d="M 100 200 L 610 200" />
+                    <path id="path-s2c" stroke="var(--path-color)" stroke-width="2" fill="none" d="M 610 120 L 100 120" />
+
+                    <g id="graph-group" transform="translate(130, 60)">
+                        <rect id="graph-bg" fill="none" stroke="none" width="450" height="200" />
+                        <g id="grid-lines"></g>
+                        <g id="axis-labels"></g>
+
+                        <path id="graph-area" fill="url(#graph-gradient)" stroke="none" />
+                        <path id="graph-line" fill="none" stroke="var(--line-color)" stroke-width="2" class="glow-line" />
+                        <a href="https://openpacketloss.com" target="_blank" style="cursor: pointer; text-decoration: none;">
+                            <text id="watermark-text" x="225" y="125" text-anchor="middle" fill="var(--text-color)"
+                                opacity="0.1" font-size="20" font-weight="bold">OpenPacketLoss™</text>
+                        </a>
+                    </g>
+                </g>
+
+                <g id="packets-c2s"></g>
+                <g id="packets-s2c"></g>
+                <g id="particles-group"></g>
+            </svg>
+
+            <!-- Start Card Overlay -->
+            <div id="start-overlay" class="start-overlay">
+                <div class="start-card">
+                    <button id="theme-btn" class="theme-toggle" title="Toggle Theme">Dark</button>
+                    <button id="btn-test" class="test-button">
+                        TEST PACKET LOSS
+                    </button>
+                    <button id="btn-settings" class="settings-button" title="Settings">
+                        Settings
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status Text Area -->
+            <div id="status-text" class="status-text hidden">
+                <span id="status-content"></span><span id="status-cursor">_</span>
+            </div>
+
+
+            <!-- Settings Modal -->
+            <div id="settings-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Test Settings</h2>
+                        <button id="close-settings" class="close-button">✕</button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Quick Presets -->
+                        <div class="setting-group">
+                            <label class="setting-label">Quick Presets</label>
+                            <div class="preset-buttons">
+                                <button class="preset-btn" data-preset="quick">QUICK</button>
+                                <button class="preset-btn active" data-preset="default">DEFAULT</button>
+                                <button class="preset-btn" data-preset="stress">MAX</button>
+                            </div>
+                        </div>
+
+                        <!-- Direction -->
+                        <div class="setting-group">
+                            <label class="setting-label">Test Direction</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="direction" value="both" checked>
+                                    <span>Both Directions</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="direction" value="c2s">
+                                    <span>Client to Server</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="direction" value="s2c">
+                                    <span>Server to Client</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Custom Duration -->
+                        <div class="setting-group">
+                            <label class="setting-label">Custom Duration: <span id="duration-value">30s</span></label>
+                            <input type="range" id="duration-slider" min="5" max="300" value="30" step="5" class="slider">
+                            <div class="slider-labels">
+                                <span>5s</span>
+                                <span>5m</span>
+                            </div>
+                        </div>
+
+                        <!-- Calculation Mode (only for MAX with 5+ minutes) -->
+                        <div id="calculation-mode-group" class="setting-group hidden">
+                            <label class="setting-label">Calculation Mode</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="calculation-mode" value="realtime" checked>
+                                    <span>Real-time (10s window)</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="calculation-mode" value="cumulative">
+                                    <span>Cumulative (all data)</span>
+                                </label>
+                            </div>
+                            <small style="opacity: 0.7; font-size: 11px; display: block; margin-top: 4px;">
+                                Real-time mode shows loss for last 10 seconds only - ideal for debugging hardware changes
+                            </small>
+                        </div>
+
+                        <!-- Advanced Settings (Collapsed) -->
+                        <details class="advanced-settings">
+                            <summary>Advanced ▼</summary>
+                            <div class="setting-group">
+                                <label class="setting-label">Packet Interval (ms)</label>
+                                <input type="number" id="packet-interval" value="15.625" min="1" max="1000" step="0.001"
+                                    class="number-input">
+                                <div style="margin-top: 8px;">
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" id="auto-interval" checked style="cursor: pointer;">
+                                        <span style="font-size: 13px;">Auto</span>
+                                    </label>
+                                </div>
+                                <div style="margin-top: 8px;">
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" id="show-network-metrics" style="cursor: pointer;">
+                                        <span style="font-size: 13px;">Show Network Metrics</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="setting-group">
+                                <label class="setting-label">Calculated Packet Count</label>
+                                <p id="packet-count-display" style="font-size: 14px; color: var(--primary-color); margin: 0; padding: 8px 0;">1920 packets</p>
+                                <small style="opacity: 0.7; font-size: 11px; display: block; margin-top: 4px;">
+                                    Auto-calculated based on duration and interval
+                                </small>
+                            </div>
+                            <div class="setting-group">
+                                <label class="setting-label">Packet Size (bytes) - MTU Testing</label>
+                                <input type="number" id="packet-size" value="100" min="50" max="9000" step="50"
+                                    class="number-input">
+                                <div class="preset-buttons gap-small" style="margin-top: 8px;">
+                                    <button class="size-preset-btn" data-size="100">Small (100B)</button>
+                                    <button class="size-preset-btn" data-size="576">IPv4 (576B)</button>
+                                    <button class="size-preset-btn" data-size="1500">Ethernet (1500B)</button>
+                                    <button class="size-preset-btn" data-size="9000">Jumbo (9000B)</button>
+                                </div>
+                                <small style="opacity: 0.7; font-size: 11px; display: block; margin-top: 4px;">
+                                    Large packets may require longer intervals
+                                </small>
+                            </div>
+                            <div
+                                style="text-align: center; margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
+                                <button id="reset-settings"
+                                    style="font-size: 12px; padding: 6px 16px; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                                    Reset to Defaults
+                                </button>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="start-test-from-modal" class="primary-button">SAVE & START TEST</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- External JavaScript Modules -->
+    <script type="module" src="bundle.min.js?v=1776935747193"></script>
+</body>
+
+</html>
